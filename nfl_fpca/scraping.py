@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup, Comment
 
 from nfl_fpca.player import Player
 
-
 logging.basicConfig(level=logging.DEBUG,
                     filename='logs/scraping.log',
                     encoding='utf-8',
@@ -15,6 +14,7 @@ logging.basicConfig(level=logging.DEBUG,
                     style="{",
                     datefmt="%Y-%m-%d %H:%M",
                     )
+
 
 # TODO: Set error log to exception to get traceback
 # TODO: Set custom logger
@@ -105,7 +105,7 @@ def scrape_player_header(header, player):
     player.set_player_info(name, pos, height, weight)
 
 
-def get_stats_table(soup):
+def get_career_table(soup):
     """ Finds and returns the table on a player's page which contains his AV for each year."""
     # TODO: speed function up with position based assumptions (i.e. a QB won't have his AV in a defense table)
     titles = ['passing', 'rushing_and_receiving', 'receiving_and_rushing', 'defense', 'kicking', 'punting', 'returns',
@@ -146,6 +146,38 @@ def scrape_career_table(table, player):
     player.set_career_info(start_year, start_age, career_length, retired, approx_value, games_played)
 
 
+def find_combine_table(comments):
+    for comment in comments:
+        if 'id="combine"' in comment:
+            return BeautifulSoup(comment, 'html.parser')
+    logging.error(f"No roster table found")
+    return None
+
+
+def scrape_combine_table(table, player):
+    # TODO: Error handling
+    combine_data = table.tbody.tr
+
+    # Get combine results
+    dash = float(combine_data.find('td', attrs={'data-stat': 'forty_yd'}).text or 0.0)
+    bench = int(combine_data.find('td', attrs={'data-stat': 'bench_reps'}).text or 0)
+    broad = int(combine_data.find('td', attrs={'data-stat': 'broad_jump'}).text or 0)
+    shuttle = float(combine_data.find('td', attrs={'data-stat': 'shuttle'}).text or 0.0)
+    cone = float(combine_data.find('td', attrs={'data-stat': 'cone'}).text or 0.0)
+    vertical = float(combine_data.find('td', attrs={'data-stat': 'vertical'}).text or 0.0)
+
+    # If player infos are missing, get them from the combine table
+    height = int(combine_data.find('td', attrs={'data-stat': 'height'}).text or 0)
+    weight = int(combine_data.find('td', attrs={'data-stat': 'weight'}).text or 0)
+    pos = combine_data.find('td', attrs={'data-stat': 'pos'}).text
+
+    if player.height == 0: player.height = height
+    if player.weight == 0: player.weight = weight
+    if player.position == 'N/A': player.position = pos
+
+    player.set_combine_results(dash, bench, broad, shuttle, cone, vertical)
+
+
 def scrape_player_page(url, pid):
     # Request page
     response = requests.get(url)
@@ -166,12 +198,22 @@ def scrape_player_page(url, pid):
         logging.info(f"No player header found for {pid}")
 
     # Find AV table and extract AV curve, GP (and optionally pos) history
-    table = get_stats_table(soup)
+    career_table = get_career_table(soup)
 
-    if table is not None:
-        logging.debug(f"Career info for {pid} found in {table['id']}")
-        scrape_career_table(table, player)
+    if career_table is not None:
+        logging.debug(f"Career info for {pid} found in {career_table['id']}")
+        scrape_career_table(career_table, player)
     else:
         logging.info(f"No career table found")
 
-    return player
+    # Extract combine results
+    # The combine table is in a comment
+    comments = soup.find_all(string=lambda text: isinstance(text, Comment))
+    combine_table = find_combine_table(comments)
+
+    if combine_table is not None:
+        scrape_combine_table(combine_table, player)
+    else:
+        logging.info(f"No combine_table found")
+
+    return player.dash

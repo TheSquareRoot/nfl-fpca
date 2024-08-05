@@ -18,6 +18,14 @@ class Player:
         self.approx_value = dict()
         self.games_played = dict()
 
+        # Combine results
+        self.dash = 0.0
+        self.bench = 0
+        self.broad = 0
+        self.shuttle = 0.0
+        self.cone = 0.0
+        self.vertical = 0.0
+
     def __repr__(self):
         return f"Player({self.pid}, {self.first_name}, {self.last_name}, {self.position}, {self.height}, {self.weight})"
 
@@ -35,3 +43,11 @@ class Player:
         self.retired = retired
         self.approx_value = approx_value
         self.games_played = games_played
+
+    def set_combine_results(self, dash, bench, broad, shuttle, cone, vertical):
+        self.dash = dash
+        self.bench = bench
+        self.broad = broad
+        self.shuttle = shuttle
+        self.cone = cone
+        self.vertical = vertical
