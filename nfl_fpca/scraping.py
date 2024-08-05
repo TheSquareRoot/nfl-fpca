@@ -30,9 +30,13 @@ def request_url(url):
     return response.text
 
 
-def find_roster_table(comments):
+def find_table(soup, tid):
+    # Find all comments on the page
+    comments = soup.find_all(string=lambda text: isinstance(text, Comment))
+
+    # Search the comments for the table
     for comment in comments:
-        if 'id="div_roster"' in comment:
+        if f'id="{tid}"' in comment:
             return BeautifulSoup(comment, 'html.parser')
     logging.error(f"No roster table found")
     return None
@@ -54,9 +58,7 @@ def scrape_player_ids(page, pid_set):
     soup = BeautifulSoup(page, 'html.parser')
 
     # The roster table is in a comment, so it needs to be extracted first to be searched
-    comments = soup.find_all(string=lambda text: isinstance(text, Comment))
-
-    table = find_roster_table(comments)
+    table = find_table(soup, "div_roster")
     if table is None:
         return pid_set
 
@@ -146,14 +148,6 @@ def scrape_career_table(table, player):
     player.set_career_info(start_year, start_age, career_length, retired, approx_value, games_played)
 
 
-def find_combine_table(comments):
-    for comment in comments:
-        if 'id="combine"' in comment:
-            return BeautifulSoup(comment, 'html.parser')
-    logging.error(f"No roster table found")
-    return None
-
-
 def scrape_combine_table(table, player):
     # TODO: Error handling
     combine_data = table.tbody.tr
@@ -188,7 +182,7 @@ def scrape_player_page(url, pid):
 
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    # Get header and extract info
+    # HEADER
     player = Player(pid)
     header = soup.find('div', attrs={'id': 'meta'})
 
@@ -197,7 +191,7 @@ def scrape_player_page(url, pid):
     else:
         logging.info(f"No player header found for {pid}")
 
-    # Find AV table and extract AV curve, GP (and optionally pos) history
+    # CAREER TABLE
     career_table = get_career_table(soup)
 
     if career_table is not None:
@@ -206,10 +200,9 @@ def scrape_player_page(url, pid):
     else:
         logging.info(f"No career table found")
 
-    # Extract combine results
+    # COMBINE RESULTS
     # The combine table is in a comment
-    comments = soup.find_all(string=lambda text: isinstance(text, Comment))
-    combine_table = find_combine_table(comments)
+    combine_table = find_table(soup, "combine")
 
     if combine_table is not None:
         scrape_combine_table(combine_table, player)
