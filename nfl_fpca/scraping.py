@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup, Comment
 
 from nfl_fpca.player import Player
 
+
 logging.basicConfig(level=logging.DEBUG,
                     filename='logs/scraping.log',
                     encoding='utf-8',
@@ -172,15 +173,22 @@ def scrape_combine_table(table, player):
     player.set_combine_results(dash, bench, broad, shuttle, cone, vertical)
 
 
-def scrape_player_page(url, pid):
-    # Request page
-    response = requests.get(url)
+def fetch_and_scrape_player_page(pid):
+    # Create player page URL from player ID
+    url = f"https://www.pro-football-reference.com/players/{pid[0]}/{pid}.htm"
 
-    if response.status_code != 200:
-        logging.error(f"Request failed with status code {response.status_code}")
+    # Request page
+    page = request_url(url)
+
+    if page is None:
         return None
 
-    soup = BeautifulSoup(response.text, 'html.parser')
+    return scrape_player_page(page, pid)
+
+
+def scrape_player_page(page, pid):
+    # Parse HTML file
+    soup = BeautifulSoup(page, 'html.parser')
 
     # Scrape the page
     player = Player(pid)
@@ -205,4 +213,4 @@ def scrape_player_page(url, pid):
     else:
         logging.info(f"No combine_table found")
 
-    return player.dash
+    return player
