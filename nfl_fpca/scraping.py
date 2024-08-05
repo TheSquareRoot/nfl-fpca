@@ -105,6 +105,47 @@ def scrape_player_header(header, player):
     player.set_player_info(name, pos, height, weight)
 
 
+def get_stats_table(soup):
+    """ Finds and returns the table on a player's page which contains his AV for each year."""
+    # TODO: speed function up with position based assumptions (i.e. a QB won't have his AV in a defense table)
+    titles = ['passing', 'rushing_and_receiving', 'receiving_and_rushing', 'defense', 'kicking', 'punting', 'returns',
+              'games_played']  # All possible table names
+
+    # Load each table and if it exists, check if there is an AV column in it
+    for title in titles:
+        table = soup.find('table', attrs={'id': title})
+        if (table is not None) and ('AV' in table.text):
+            return table
+    return None
+
+
+def scrape_career_table(table, player):
+    lines = table.tbody.find_all('tr', attrs={'class': 'full_table'})
+
+    games_played = dict()
+    approx_value = dict()
+
+    # Get approximate value and games played for each year
+    for line in lines:
+        year = int(line['id'].split('.')[1])
+        gp = int(line.find('td', attrs={'data-stat': 'g'}).text or 0)
+        av = int(line.find('td', attrs={'data-stat': 'av'}).text or 0)
+
+        games_played[year] = gp
+        approx_value[year] = av
+
+    # Get other information
+    start_year = int(lines[0]['id'].split('.')[1])
+    last_year = int(lines[-1]['id'].split('.')[1])
+
+    career_length = last_year - start_year + 1
+    retired = (last_year != 2023)
+
+    start_age = int(lines[0].find('td', attrs={'data-stat': 'age'}).text)
+
+    player.set_career_info(start_year, start_age, career_length, retired, approx_value, games_played)
+
+
 def scrape_player_page(url, pid):
     # Request page
     response = requests.get(url)
@@ -122,6 +163,15 @@ def scrape_player_page(url, pid):
     if header is not None:
         scrape_player_header(header, player)
     else:
-        logging.info(f"No player header found")
+        logging.info(f"No player header found for {pid}")
+
+    # Find AV table and extract AV curve, GP (and optionally pos) history
+    table = get_stats_table(soup)
+
+    if table is not None:
+        logging.debug(f"Career info for {pid} found in {table['id']}")
+        scrape_career_table(table, player)
+    else:
+        logging.info(f"No career table found")
 
     return player
