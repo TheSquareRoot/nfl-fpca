@@ -1,7 +1,11 @@
 import logging
+import re
 import requests
 
 from bs4 import BeautifulSoup, Comment
+
+from nfl_fpca.player import Player
+
 
 logging.basicConfig(level=logging.DEBUG,
                     filename='logs/scraping.log',
@@ -12,15 +16,7 @@ logging.basicConfig(level=logging.DEBUG,
                     datefmt="%Y-%m-%d %H:%M",
                     )
 
-
-class Player:
-    def __init__(self, pid, first_name, last_name):
-        self.pid = pid
-        self.first_name = first_name
-        self.last_name = last_name
-
-    def __repr__(self):
-        return f"Player({self.pid}, {self.first_name}, {self.last_name})"
+# TODO: Set error log to exception to get traceback
 
 
 def request_url(url):
@@ -75,3 +71,39 @@ def scrape_player_ids(page, pid_set):
             logging.info(f"{player.td['csk']} does not have a page.")
 
     return temp_set
+
+
+def scrape_player_header(header, player):
+    # Name
+    name = header.h1.span.text
+
+    # Position
+    pos = header.find(string="Position").parent.parent.text
+    pos = re.search(r":\s([\w-]+)", pos).group(1)
+
+    # Physicals
+    phys = header.find_all(string=re.compile(r"(\d{3})cm"))
+    height = int(re.search(r"(\d{3})cm", phys[0].text).group(1))
+    weight = int(re.search(r"(\d{2,3})kg", phys[0].text).group(1))
+
+    # Update player info
+    player.set_player_info(name, pos, height, weight)
+
+
+def scrape_player_page(url, pid):
+    # Request page
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        logging.error(f"Request failed with status code {response.status_code}")
+        return None
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # Get header and extract info
+    player = Player(pid)
+    header = soup.find('div', attrs={'id': 'meta'})
+
+    scrape_player_header(header, player)
+
+    return player
