@@ -182,27 +182,23 @@ def scrape_player_page(url, pid):
 
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    # HEADER
+    # Scrape the page
     player = Player(pid)
+
     header = soup.find('div', attrs={'id': 'meta'})
+    career_table = get_career_table(soup)
+    combine_table = find_table(soup, "combine")
 
     if header is not None:
         scrape_player_header(header, player)
     else:
         logging.info(f"No player header found for {pid}")
 
-    # CAREER TABLE
-    career_table = get_career_table(soup)
-
     if career_table is not None:
         logging.debug(f"Career info for {pid} found in {career_table['id']}")
         scrape_career_table(career_table, player)
     else:
         logging.info(f"No career table found")
-
-    # COMBINE RESULTS
-    # The combine table is in a comment
-    combine_table = find_table(soup, "combine")
 
     if combine_table is not None:
         scrape_combine_table(combine_table, player)
