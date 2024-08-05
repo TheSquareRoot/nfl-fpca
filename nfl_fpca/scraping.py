@@ -39,7 +39,6 @@ def find_table(soup, tid):
     for comment in comments:
         if f'id="{tid}"' in comment:
             return BeautifulSoup(comment, 'html.parser')
-    logging.error(f"No roster table found")
     return None
 
 
@@ -61,6 +60,7 @@ def scrape_player_ids(page, pid_set):
     # The roster table is in a comment, so it needs to be extracted first to be searched
     table = find_table(soup, "div_roster")
     if table is None:
+        logging.error(f'No roster table found')
         return pid_set
 
     # Get player IDs from the table, store them in a temporary set
@@ -200,17 +200,17 @@ def scrape_player_page(page, pid):
     if header is not None:
         scrape_player_header(header, player)
     else:
-        logging.info(f"No player header found for {pid}")
+        logging.info(f"[{pid}] - No player header")
 
     if career_table is not None:
-        logging.debug(f"Career info for {pid} found in {career_table['id']}")
+        logging.debug(f"[{pid}] - Career info found in {career_table['id']}")
         scrape_career_table(career_table, player)
     else:
-        logging.info(f"No career table found")
+        logging.info(f"[{pid}] - No career table")
 
     if combine_table is not None:
         scrape_combine_table(combine_table, player)
     else:
-        logging.info(f"No combine_table found")
+        logging.info(f"[{pid}] - No combine table")
 
     return player
