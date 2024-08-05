@@ -17,6 +17,7 @@ logging.basicConfig(level=logging.DEBUG,
                     )
 
 # TODO: Set error log to exception to get traceback
+# TODO: Set custom logger
 
 
 def request_url(url):
@@ -74,17 +75,31 @@ def scrape_player_ids(page, pid_set):
 
 
 def scrape_player_header(header, player):
+    # Compile regular expressions
+    position_re = re.compile(r":\s([\w-]+)")
+    height_re = re.compile(r"(\d{3})cm")
+    weight_re = re.compile(r"(\d{2,3})kg")
+
     # Name
     name = header.h1.span.text
 
     # Position
-    pos = header.find(string="Position").parent.parent.text
-    pos = re.search(r":\s([\w-]+)", pos).group(1)
+    pos_txt = header.find(string="Position")
+    if pos_txt is not None:
+        pos = position_re.search(pos_txt.parent.parent.text).group(1)
+    else:
+        logging.info(f"No position found for {player.pid}")
+        pos = 'N/A'
 
     # Physicals
-    phys = header.find_all(string=re.compile(r"(\d{3})cm"))
-    height = int(re.search(r"(\d{3})cm", phys[0].text).group(1))
-    weight = int(re.search(r"(\d{2,3})kg", phys[0].text).group(1))
+    phys = header.find_all(string=height_re)
+    if phys:
+        height = int(height_re.search(phys[0].text).group(1))
+        weight = int(weight_re.search(phys[0].text).group(1))
+    else:
+        logging.info(f"No physicals found for {player.pid}")
+        height = 0
+        weight = 0
 
     # Update player info
     player.set_player_info(name, pos, height, weight)
@@ -104,6 +119,9 @@ def scrape_player_page(url, pid):
     player = Player(pid)
     header = soup.find('div', attrs={'id': 'meta'})
 
-    scrape_player_header(header, player)
+    if header is not None:
+        scrape_player_header(header, player)
+    else:
+        logging.info(f"No player header found")
 
     return player
