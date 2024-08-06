@@ -91,7 +91,7 @@ def scrape_player_header(header, player):
     if pos_txt is not None:
         pos = position_re.search(pos_txt.parent.parent.text).group(1)
     else:
-        logging.info(f"No position found for {player.pid}")
+        logging.info(f"[{player.pid}] - No position found")
         pos = 'N/A'
 
     # Physicals
@@ -100,7 +100,7 @@ def scrape_player_header(header, player):
         height = int(height_re.search(phys[0].text).group(1))
         weight = int(weight_re.search(phys[0].text).group(1))
     else:
-        logging.info(f"No physicals found for {player.pid}")
+        logging.info(f"[{player.pid}] - No physicals found")
         height = 0
         weight = 0
 
