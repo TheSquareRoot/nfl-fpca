@@ -30,8 +30,6 @@ formatter = logging.Formatter("{asctime} - {levelname} - {message}",
 file_handler.setFormatter(formatter)
 console_handler.setFormatter(formatter)
 
-logger.warning('TEST')
-
 # TODO: Set error log to exception to get traceback
 # TODO: Set custom logger
 
