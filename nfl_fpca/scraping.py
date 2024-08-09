@@ -38,6 +38,8 @@ console_handler.setFormatter(console_formatter)
 
 # TODO: Set error log to exception to get traceback
 
+# ----- UTILITY FUNCTIONS ----------------------------------------------------------------------------------------------
+
 def request_url(url):
     response = requests.get(url)
 
@@ -59,6 +61,21 @@ def find_table(soup, tid):
     return None
 
 
+def get_career_table(soup):
+    """ Finds and returns the table on a player's page which contains his AV for each year."""
+    # TODO: speed function up with position based assumptions (i.e. a QB won't have his AV in a defense table)
+    titles = ['passing', 'rushing_and_receiving', 'receiving_and_rushing', 'defense', 'kicking', 'punting', 'returns',
+              'games_played']  # All possible table names
+
+    # Load each table and if it exists, check if there is an AV column in it
+    for title in titles:
+        table = soup.find('table', attrs={'id': title})
+        if (table is not None) and ('AV' in table.text):
+            return table
+    return None
+
+# ----- WRAPPERS -------------------------------------------------------------------------------------------------------
+
 def fetch_and_scrape_player_ids(url, pid_set):
     """Wrapper for scrape_player_ids that handles the page request from a URL"""
     # Request URL and parse the content
@@ -69,6 +86,22 @@ def fetch_and_scrape_player_ids(url, pid_set):
     logger.info(f"Scraping team page...")
     return scrape_player_ids(page, pid_set)
 
+
+def fetch_and_scrape_player_page(pid):
+    # Create player page URL from player ID
+    url = f"https://www.pro-football-reference.com/players/{pid[0]}/{pid}.htm"
+
+    # Request page
+    page = request_url(url)
+
+    if page is None:
+        return None
+
+    logger.info(f"[{pid}] - Scraping started...")
+    return scrape_player_page(page, pid)
+
+
+# ----- SCRAPERS -------------------------------------------------------------------------------------------------------
 
 def scrape_player_ids(page, pid_set):
     """Parse player IDs from the roster table of a team page"""
@@ -126,20 +159,6 @@ def scrape_player_header(header, player):
     player.set_player_info(name, pos, height, weight)
 
 
-def get_career_table(soup):
-    """ Finds and returns the table on a player's page which contains his AV for each year."""
-    # TODO: speed function up with position based assumptions (i.e. a QB won't have his AV in a defense table)
-    titles = ['passing', 'rushing_and_receiving', 'receiving_and_rushing', 'defense', 'kicking', 'punting', 'returns',
-              'games_played']  # All possible table names
-
-    # Load each table and if it exists, check if there is an AV column in it
-    for title in titles:
-        table = soup.find('table', attrs={'id': title})
-        if (table is not None) and ('AV' in table.text):
-            return table
-    return None
-
-
 def scrape_career_table(table, player):
     lines = table.tbody.find_all('tr', attrs={'class': 'full_table'})
 
@@ -183,20 +202,6 @@ def scrape_combine_table(table, player):
     if player.position == 'N/A': player.position = pos
 
     player.set_combine_results(dash, bench, broad, shuttle, cone, vertical)
-
-
-def fetch_and_scrape_player_page(pid):
-    # Create player page URL from player ID
-    url = f"https://www.pro-football-reference.com/players/{pid[0]}/{pid}.htm"
-
-    # Request page
-    page = request_url(url)
-
-    if page is None:
-        return None
-
-    logger.info(f"[{pid}] - Scraping started...")
-    return scrape_player_page(page, pid)
 
 
 def scrape_player_page(page, pid):
