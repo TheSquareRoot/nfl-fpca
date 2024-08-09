@@ -6,16 +6,31 @@ from bs4 import BeautifulSoup, Comment
 
 from nfl_fpca.player import Player
 
+# Logger configuration
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
-logging.basicConfig(level=logging.DEBUG,
-                    filename='logs/scraping.log',
-                    encoding='utf-8',
-                    filemode='w',
-                    format="{asctime} - {levelname} - {message}",
-                    style="{",
-                    datefmt="%Y-%m-%d %H:%M",
-                    )
+# Handlers
+file_handler = logging.FileHandler('logs/scraping.log', mode='w')
+console_handler = logging.StreamHandler()
 
+# Set logging levels
+file_handler.setLevel(logging.DEBUG)
+console_handler.setLevel(logging.INFO)
+
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+
+# Formatter
+formatter = logging.Formatter("{asctime} - {levelname} - {message}",
+                              style="{",
+                              datefmt="%H:%M",
+                              )
+
+file_handler.setFormatter(formatter)
+console_handler.setFormatter(formatter)
+
+logger.warning('TEST')
 
 # TODO: Set error log to exception to get traceback
 # TODO: Set custom logger
@@ -25,7 +40,7 @@ def request_url(url):
     response = requests.get(url)
 
     if response.status_code != 200:
-        logging.error(f"Request failed with status code {response.status_code}")
+        logger.error(f"Request failed with status code {response.status_code}")
         return None
 
     return response.text
@@ -49,6 +64,7 @@ def fetch_and_scrape_player_ids(url, pid_set):
     if page is None:
         return pid_set
 
+    logger.info(f"Scraping team page...")
     return scrape_player_ids(page, pid_set)
 
 
@@ -60,7 +76,7 @@ def scrape_player_ids(page, pid_set):
     # The roster table is in a comment, so it needs to be extracted first to be searched
     table = find_table(soup, "div_roster")
     if table is None:
-        logging.error(f'No roster table found')
+        logger.error(f'No roster table found')
         return pid_set
 
     # Get player IDs from the table, store them in a temporary set
@@ -72,7 +88,7 @@ def scrape_player_ids(page, pid_set):
             if player.td['data-append-csv'] not in pid_set:
                 temp_set.add(player.td['data-append-csv'])
         except KeyError:
-            logging.info(f"{player.td['csk']} does not have a page.")
+            logger.info(f"{player.td['csk']} does not have a page.")
 
     return temp_set
 
@@ -91,7 +107,7 @@ def scrape_player_header(header, player):
     if pos_txt is not None:
         pos = position_re.search(pos_txt.parent.parent.text).group(1)
     else:
-        logging.info(f"[{player.pid}] - No position found")
+        logger.debug(f"[{player.pid}] - No position found")
         pos = 'N/A'
 
     # Physicals
@@ -100,7 +116,7 @@ def scrape_player_header(header, player):
         height = int(height_re.search(phys[0].text).group(1))
         weight = int(weight_re.search(phys[0].text).group(1))
     else:
-        logging.info(f"[{player.pid}] - No physicals found")
+        logger.info(f"[{player.pid}] - No physicals found")
         height = 0
         weight = 0
 
@@ -181,6 +197,7 @@ def fetch_and_scrape_player_page(pid):
     if page is None:
         return None
 
+    logger.info(f"[{pid}] - Scraping started...")
     return scrape_player_page(page, pid)
 
 
@@ -198,17 +215,17 @@ def scrape_player_page(page, pid):
     if header is not None:
         scrape_player_header(header, player)
     else:
-        logging.info(f"[{pid}] - No player header")
+        logger.debug(f"[{pid}] - No player header")
 
     if career_table is not None:
-        logging.debug(f"[{pid}] - Career info found in {career_table['id']}")
+        logger.debug(f"[{pid}] - Career info found in {career_table['id']}")
         scrape_career_table(career_table, player)
     else:
-        logging.info(f"[{pid}] - No career table")
+        logger.debug(f"[{pid}] - No career table")
 
     if combine_table is not None:
         scrape_combine_table(combine_table, player)
     else:
-        logging.info(f"[{pid}] - No combine table")
+        logger.debug(f"[{pid}] - No combine table")
 
     return player
