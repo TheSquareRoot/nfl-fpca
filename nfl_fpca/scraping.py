@@ -3,6 +3,7 @@ import re
 import requests
 
 from bs4 import BeautifulSoup, Comment
+from rich.logging import RichHandler
 
 from nfl_fpca.player import Player
 
@@ -12,7 +13,7 @@ logger.setLevel(logging.DEBUG)
 
 # Handlers
 file_handler = logging.FileHandler('logs/scraping.log', mode='w')
-console_handler = logging.StreamHandler()
+console_handler = RichHandler()
 
 # Set logging levels
 file_handler.setLevel(logging.DEBUG)
@@ -44,7 +45,7 @@ def request_url(url):
     response = requests.get(url)
 
     if response.status_code != 200:
-        logger.error(f"Request failed with status code {response.status_code}")
+        logger.error(f"Request for {url} failed with status code {response.status_code}")
         return None
 
     return response.text
@@ -74,16 +75,20 @@ def get_career_table(soup):
             return table
     return None
 
+
 # ----- WRAPPERS -------------------------------------------------------------------------------------------------------
 
-def fetch_and_scrape_player_ids(url, pid_set):
+def fetch_and_scrape_player_ids(team, year, pid_set):
     """Wrapper for scrape_player_ids that handles the page request from a URL"""
+    # Create team page URL
+    url = f"https://www.pro-football-reference.com/teams/{team}/{year}_roster.htm"
+
     # Request URL and parse the content
     page = request_url(url)
     if page is None:
         return pid_set
 
-    logger.info(f"Scraping team page...")
+    logger.info(f"[{team.upper()}] - Scraping {year} roster...")
     return scrape_player_ids(page, pid_set)
 
 
