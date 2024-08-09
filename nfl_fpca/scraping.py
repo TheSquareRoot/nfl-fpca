@@ -125,8 +125,7 @@ def get_career_table(soup):
 def scrape_career_table(table, player):
     lines = table.tbody.find_all('tr', attrs={'class': 'full_table'})
 
-    games_played = dict()
-    approx_value = dict()
+    stats = dict()
 
     # Get approximate value and games played for each year
     for line in lines:
@@ -134,8 +133,7 @@ def scrape_career_table(table, player):
         gp = int(line.find('td', attrs={'data-stat': 'g'}).text or 0)
         av = int(line.find('td', attrs={'data-stat': 'av'}).text or 0)
 
-        games_played[year] = gp
-        approx_value[year] = av
+        stats[year] = {'gp': gp, 'av': av}
 
     # Get other information
     start_year = int(lines[0]['id'].split('.')[1])
@@ -146,7 +144,7 @@ def scrape_career_table(table, player):
 
     start_age = int(lines[0].find('td', attrs={'data-stat': 'age'}).text)
 
-    player.set_career_info(start_year, start_age, career_length, retired, approx_value, games_played)
+    player.set_career_info(start_year, start_age, career_length, retired, stats)
 
 
 def scrape_combine_table(table, player):

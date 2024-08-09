@@ -15,8 +15,7 @@ class Player:
         self.start_age = 0
         self.career_length = 0
         self.retired = False
-        self.approx_value = dict()
-        self.games_played = dict()
+        self.stats = dict()
 
         # Combine results
         self.dash = 0.0
@@ -36,13 +35,12 @@ class Player:
         self.height = height
         self.weight = weight
 
-    def set_career_info(self, start_year, start_age, career_length, retired, approx_value, games_played):
+    def set_career_info(self, start_year, start_age, career_length, retired, stats):
         self.start_year = start_year
         self.start_age = start_age
         self.career_length = career_length
         self.retired = retired
-        self.approx_value = approx_value
-        self.games_played = games_played
+        self.stats = stats
 
     def set_combine_results(self, dash, bench, broad, shuttle, cone, vertical):
         self.dash = dash
