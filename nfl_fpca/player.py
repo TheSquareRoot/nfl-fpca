@@ -1,5 +1,4 @@
 
-
 class Player:
     def __init__(self, pid):
         self.pid = pid
@@ -13,8 +12,7 @@ class Player:
         # Career info
         self.start_year = 0
         self.start_age = 0
-        self.career_length = 0
-        self.retired = False
+        self.last_year = 0
         self.stats = dict()
 
         # Combine results
@@ -28,6 +26,14 @@ class Player:
     def __repr__(self):
         return f"Player({self.pid}, {self.first_name}, {self.last_name}, {self.position}, {self.height}, {self.weight})"
 
+    @property
+    def career_length(self):
+        return self.last_year - self.start_year + 1
+
+    @property
+    def retired(self):
+        return self.start_year != 2023
+
     def set_player_info(self, name, position, height, weight):
         self.first_name = name.split(' ')[0]
         self.last_name = name.split(' ')[1]
@@ -35,11 +41,10 @@ class Player:
         self.height = height
         self.weight = weight
 
-    def set_career_info(self, start_year, start_age, career_length, retired, stats):
+    def set_career_info(self, start_year, start_age, last_year, stats):
         self.start_year = start_year
         self.start_age = start_age
-        self.career_length = career_length
-        self.retired = retired
+        self.last_year = last_year
         self.stats = stats
 
     def set_combine_results(self, dash, bench, broad, shuttle, cone, vertical):

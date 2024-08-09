@@ -22,17 +22,21 @@ logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
 # Formatter
-formatter = logging.Formatter("{asctime} - {levelname} - {message}",
-                              style="{",
-                              datefmt="%H:%M",
-                              )
+file_formatter = logging.Formatter("{asctime} - {name} - {levelname} - {message}",
+                                   style="{",
+                                   datefmt="%H:%M",
+                                   )
 
-file_handler.setFormatter(formatter)
-console_handler.setFormatter(formatter)
+console_formatter = logging.Formatter("{levelname} - {message}",
+                                      style="{",
+                                      datefmt="%H:%M",
+                                      )
+
+file_handler.setFormatter(file_formatter)
+console_handler.setFormatter(console_formatter)
+
 
 # TODO: Set error log to exception to get traceback
-# TODO: Set custom logger
-
 
 def request_url(url):
     response = requests.get(url)
@@ -152,13 +156,9 @@ def scrape_career_table(table, player):
     # Get other information
     start_year = int(lines[0]['id'].split('.')[1])
     last_year = int(lines[-1]['id'].split('.')[1])
-
-    career_length = last_year - start_year + 1
-    retired = (last_year != 2023)
-
     start_age = int(lines[0].find('td', attrs={'data-stat': 'age'}).text)
 
-    player.set_career_info(start_year, start_age, career_length, retired, stats)
+    player.set_career_info(start_year, start_age, last_year, stats)
 
 
 def scrape_combine_table(table, player):
