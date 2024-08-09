@@ -6,6 +6,9 @@ __pycache__/
 # PyCharm folders
 .idea/
 
+# Project specific folders
+/data
+
 # C extensions
 *.so
 

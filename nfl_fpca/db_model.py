@@ -1,7 +1,9 @@
+import os
 from peewee import *
 
 
-DB_PATH = "/home/marvin/Documents/code/nfl-fpca/data/player.db"
+# DB_PATH = "/home/marvin/Documents/code/nfl-fpca/data/player.db"
+DB_PATH = os.getcwd() + "/data/player.db"
 db = SqliteDatabase(DB_PATH)
 
 
@@ -10,21 +12,21 @@ class BaseModel(Model):
         database = db
 
 
-class PlayerModel(BaseModel):
+class PlayerInfo(BaseModel):
     pid = CharField(primary_key=True, null=False)
-    firstName = CharField()
-    lastName = CharField()
+    first_name = CharField()
+    last_name = CharField()
     position = CharField(null=True)
-
-    # Career details
-    startYear = IntegerField()
-    startAge = IntegerField()
-    careerLength = IntegerField()
-    retired = BooleanField(default=True)
 
     # Physical
     height = IntegerField()
     weight = IntegerField()
+
+    # Career details
+    start_year = IntegerField()
+    start_age = IntegerField()
+    career_length = IntegerField()
+    retired = BooleanField(default=True)
 
     # Combine measurements
     dash = FloatField(null=True)
@@ -36,7 +38,7 @@ class PlayerModel(BaseModel):
 
 
 class SeasonStats(BaseModel):
-    pid = ForeignKeyField(PlayerModel)
+    pid = ForeignKeyField(PlayerInfo)
     year = IntegerField(null=False)
     games_played = IntegerField()
     approx_value = IntegerField()
