@@ -36,6 +36,18 @@ console_handler.setFormatter(console_formatter)
 
 
 @db_model.db.connection_context()
+def reset():
+    try:
+        logger.info('Wiping database...')
+        db_model.db.drop_tables([db_model.PlayerInfo, db_model.SeasonStats], safe=True)
+        db_model.db.create_tables([db_model.PlayerInfo, db_model.SeasonStats])
+    except Exception as e:
+        logger.exception(e)
+    else:
+        logger.info('Database wiped!')
+
+
+@db_model.db.connection_context()
 def add_players(player_list):
     logger.info(f"Adding {len(player_list)} players to database...")
     for player in player_list:
