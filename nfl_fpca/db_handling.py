@@ -1,10 +1,46 @@
+import logging
+
+from rich.logging import RichHandler
+
 import nfl_fpca.db_model as db_model
+
+
+# Logger configuration
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# Handlers
+file_handler = logging.FileHandler('logs/database.log', mode='w')
+console_handler = RichHandler()
+
+# Set logging levels
+file_handler.setLevel(logging.DEBUG)
+console_handler.setLevel(logging.INFO)
+
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+
+# Formatter
+file_formatter = logging.Formatter("{asctime} - {name} - {levelname} - {message}",
+                                   style="{",
+                                   datefmt="%H:%M",
+                                   )
+
+console_formatter = logging.Formatter("{levelname} - {message}",
+                                      style="{",
+                                      datefmt="%H:%M",
+                                      )
+
+file_handler.setFormatter(file_formatter)
+console_handler.setFormatter(console_formatter)
 
 
 @db_model.db.connection_context()
 def add_players(player_list):
+    logger.info(f"Adding {len(player_list)} players to database...")
     for player in player_list:
         # PlayerInfo table
+        logger.debug(f"[{player.pid}] - Adding player...")
         db_model.PlayerInfo.create(pid=player.pid,
                                    first_name=player.first_name,
                                    last_name=player.last_name,
@@ -28,3 +64,5 @@ def add_players(player_list):
                                         year=year,
                                         games_played=val['gp'],
                                         approx_value=val['av'], )
+
+    logger.info(f"{len(player_list)} players added to database!")
