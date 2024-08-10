@@ -41,6 +41,14 @@ def get_career_table(soup):
     return None
 
 
+def lbs_to_kgs(weight):
+    return round(weight / 2.2046)
+
+
+def inches_to_cm(height):
+    return round(height * 2.54)
+
+
 # ----- WRAPPERS -------------------------------------------------------------------------------------------------------
 
 def fetch_and_scrape_player_ids(team, year, pid_set):
@@ -174,8 +182,8 @@ def scrape_combine_table(table, player):
     weight = int(combine_data.find('td', attrs={'data-stat': 'weight'}).text or 0)
     pos = combine_data.find('td', attrs={'data-stat': 'pos'}).text
 
-    if player.height == 0: player.height = height
-    if player.weight == 0: player.weight = weight
+    if player.height == 0: player.height = inches_to_cm(height)
+    if player.weight == 0: player.weight = lbs_to_kgs(weight)
     if player.position == 'N/A': player.position = pos
 
     player.set_combine_results(dash, bench, broad, shuttle, cone, vertical)
