@@ -3,7 +3,7 @@ import requests
 
 from bs4 import BeautifulSoup, Comment
 
-from nfl_fpca.logging_config import setup_logging
+from nfl_fpca.config import setup_logging
 from nfl_fpca.player import Player
 
 
