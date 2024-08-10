@@ -2,11 +2,7 @@ import nfl_fpca.db_model as db_model
 
 
 @db_model.db.connection_context()
-def populate_database(player_list):
-    # Wipe the database
-    db_model.db.drop_tables([db_model.PlayerInfo, db_model.SeasonStats], safe=True)
-    db_model.db.create_tables([db_model.PlayerInfo, db_model.SeasonStats])
-
+def add_players(player_list):
     for player in player_list:
         # PlayerInfo table
         db_model.PlayerInfo.create(pid=player.pid,
