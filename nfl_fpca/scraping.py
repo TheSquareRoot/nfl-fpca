@@ -38,17 +38,18 @@ console_handler.setFormatter(console_formatter)
 
 
 # TODO: Set error log to exception to get traceback
+# TODO: MAJOR - NEED BETTER EXCEPTION HANDLING (return None is NOT enough)
 
 # ----- UTILITY FUNCTIONS ----------------------------------------------------------------------------------------------
 
 def request_url(url):
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.exceptions.RequestException:
+        raise
 
-    if response.status_code != 200:
-        logger.error(f"Request for {url} failed with status code {response.status_code}")
-        return None
-
-    return response.text
+    return response.text, response.status_code
 
 
 def find_table(soup, tid):
@@ -84,26 +85,33 @@ def fetch_and_scrape_player_ids(team, year, pid_set):
     url = f"https://www.pro-football-reference.com/teams/{team}/{year}_roster.htm"
 
     # Request URL and parse the content
-    page = request_url(url)
-    if page is None:
-        return pid_set
-
-    logger.info(f"[{team.upper()}] - Scraping {year} roster...")
-    return scrape_player_ids(page, pid_set)
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        logger.error(f"[{team.upper()}] - Fetching {year} roster page failed with code {e.response.status_code}")
+        return set()
+    else:
+        logger.debug(f"[{team.upper()}] - Requested {url} successfully")
+        logger.info(f"[{team.upper()}] - Scraping {year} roster...")
+        return scrape_player_ids(response.text, pid_set)
 
 
 def fetch_and_scrape_player_page(pid):
     # Create player page URL from player ID
-    url = f"https://www.pro-football-reference.com/players/{pid[0]}/{pid}.htm"
+    url = f"https://www.pro-football-reference.com/players/{pid[0].upper()}/{pid}.htm"
 
     # Request page
-    page = request_url(url)
-
-    if page is None:
-        return None
-
-    logger.info(f"[{pid}] - Scraping started...")
-    return scrape_player_page(page, pid)
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        logger.error(f"[{pid}] - Requesting player page failed with code {e.response.status_code}")
+        raise
+    else:
+        logger.debug(f"[{pid}] - Requested {url} successfully.")
+        logger.info(f"[{pid}] - Scraping...")
+        return scrape_player_page(response.text, pid)
 
 
 # ----- SCRAPERS -------------------------------------------------------------------------------------------------------
