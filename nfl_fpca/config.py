@@ -1,5 +1,13 @@
 import logging
 from rich.logging import RichHandler
+from rich.progress import (
+    Progress,
+    BarColumn,
+    SpinnerColumn,
+    TaskProgressColumn,
+    TextColumn,
+    TimeRemainingColumn,
+)
 
 
 def setup_logging(name, log_file):
@@ -35,3 +43,13 @@ def setup_logging(name, log_file):
     return logger
 
 
+def setup_progress_bar():
+    progress = Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn("[{task.completed}/{task.total}]"),
+        TimeRemainingColumn(),
+    )
+
+    return progress
