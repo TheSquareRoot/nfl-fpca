@@ -1,40 +1,14 @@
-import logging
 import re
 import requests
 
 from bs4 import BeautifulSoup, Comment
-from rich.logging import RichHandler
 
+from nfl_fpca.logging_config import setup_logging
 from nfl_fpca.player import Player
 
-# Logger configuration
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
-# Handlers
-file_handler = logging.FileHandler('logs/scraping.log', mode='w')
-console_handler = RichHandler()
-
-# Set logging levels
-file_handler.setLevel(logging.DEBUG)
-console_handler.setLevel(logging.INFO)
-
-logger.addHandler(file_handler)
-logger.addHandler(console_handler)
-
-# Formatter
-file_formatter = logging.Formatter("{asctime} - {name} - {levelname} - {message}",
-                                   style="{",
-                                   datefmt="%H:%M",
-                                   )
-
-console_formatter = logging.Formatter("{levelname} - {message}",
-                                      style="{",
-                                      datefmt="%H:%M",
-                                      )
-
-file_handler.setFormatter(file_formatter)
-console_handler.setFormatter(console_formatter)
+# Configure module logger from config file
+logger = setup_logging(__name__, 'logs/scraping.log')
 
 
 # TODO: Set error log to exception to get traceback
