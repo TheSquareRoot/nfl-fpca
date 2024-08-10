@@ -42,16 +42,6 @@ console_handler.setFormatter(console_formatter)
 
 # ----- UTILITY FUNCTIONS ----------------------------------------------------------------------------------------------
 
-def request_url(url):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-    except requests.exceptions.RequestException:
-        raise
-
-    return response.text, response.status_code
-
-
 def find_table(soup, tid):
     # Find all comments on the page
     comments = soup.find_all(string=lambda text: isinstance(text, Comment))
