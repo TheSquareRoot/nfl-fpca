@@ -41,6 +41,10 @@ def get_career_table(soup):
     return None
 
 
+def get_position_group(position):
+    return position
+
+
 def lbs_to_kgs(weight):
     return round(weight / 2.2046)
 
@@ -126,9 +130,11 @@ def scrape_player_header(header, player):
     pos_txt = header.find(string="Position")
     if pos_txt is not None:
         pos = position_re.search(pos_txt.parent.parent.text).group(1)
+        pos_group = get_position_group(pos)
     else:
         logger.debug(f"[{player.pid}] - No position found")
         pos = 'N/A'
+        pos_group = 'N/A'
 
     # Physicals
     phys = header.find_all(string=height_re)
@@ -141,7 +147,7 @@ def scrape_player_header(header, player):
         weight = 0
 
     # Update player info
-    player.set_player_info(name, pos, height, weight)
+    player.set_player_info(name, pos, pos_group, height, weight)
 
 
 def scrape_career_table(table, player):
@@ -167,6 +173,7 @@ def scrape_career_table(table, player):
 
 def scrape_combine_table(table, player):
     # TODO: Error handling
+    # TODO: Get combine year
     combine_data = table.tbody.tr
 
     # Get combine results
@@ -185,6 +192,7 @@ def scrape_combine_table(table, player):
     if player.height == 0: player.height = inches_to_cm(height)
     if player.weight == 0: player.weight = lbs_to_kgs(weight)
     if player.position == 'N/A': player.position = pos
+    if player.position_group == 'N/A': player.position_group = get_position_group(pos)
 
     player.set_combine_results(dash, bench, broad, shuttle, cone, vertical)
 

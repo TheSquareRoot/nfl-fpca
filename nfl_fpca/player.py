@@ -1,3 +1,5 @@
+# TODO: Look into dataclasses
+
 
 class Player:
     def __init__(self, pid):
@@ -6,6 +8,7 @@ class Player:
         self.first_name = None
         self.last_name = None
         self.position = None
+        self.position_group = None
         self.height = 0
         self.weight = 0
 
@@ -34,10 +37,11 @@ class Player:
     def retired(self):
         return self.start_year != 2023
 
-    def set_player_info(self, name, position, height, weight):
+    def set_player_info(self, name, position, position_group, height, weight):
         self.first_name = name.split(' ')[0]
         self.last_name = name.split(' ')[1]
         self.position = position
+        self.position_group = position_group
         self.height = height
         self.weight = weight
 
