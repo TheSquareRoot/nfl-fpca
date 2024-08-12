@@ -1,10 +1,7 @@
-from nfl_fpca.db_model import (
-    db,
-    PlayerInfo,
-    SeasonStats
-)
-from nfl_fpca.config import setup_logging
-from nfl_fpca.player import Player
+from ..config import setup_logging
+from ..models.db_model import db, PlayerInfo, SeasonStats
+from ..models.player import Player
+
 
 # Configure module logger from config file
 logger = setup_logging(__name__, 'logs/database.log')

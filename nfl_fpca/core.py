@@ -1,9 +1,11 @@
 import requests
 import time
 
-from nfl_fpca.config import setup_progress_bar
-import nfl_fpca.db_handling as db_handling
-import nfl_fpca.scraping as scraping
+import nfl_fpca.database.db_handling as db_handling
+
+from .config import setup_progress_bar
+from .scraping.team_scrapper import fetch_and_scrape_player_ids
+from .scraping.player_scrapper import fetch_and_scrape_player_page
 
 
 def run_scraping_pipeline(start, end, team, wipe=False):
@@ -26,7 +28,7 @@ def run_scraping_pipeline(start, end, team, wipe=False):
             time.sleep(cooldown)
             player_list = []
 
-            temp_set = scraping.fetch_and_scrape_player_ids(team, year, pid_set)
+            temp_set = fetch_and_scrape_player_ids(team, year, pid_set)
 
             player_task = progress.add_task('Scraping players...', total=len(temp_set))
             pid_set = pid_set | temp_set
@@ -34,7 +36,7 @@ def run_scraping_pipeline(start, end, team, wipe=False):
             for pid in temp_set:
                 time.sleep(cooldown)
                 try:
-                    player = scraping.fetch_and_scrape_player_page(pid)
+                    player = fetch_and_scrape_player_page(pid)
                 except requests.exceptions.ConnectionError as e:
                     print(e)
                 else:
