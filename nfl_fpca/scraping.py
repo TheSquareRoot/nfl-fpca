@@ -42,7 +42,23 @@ def get_career_table(soup):
 
 
 def get_position_group(position):
-    return position
+    """ Groups all positions into groups for simpler data handling. """
+    if position in ['T', 'G', 'RT', 'RG', 'LT', 'LG', 'C', 'G-C', 'C-G', 'G-T', 'T-G', 'C-T', 'T-C', 'C-T-G', 'T-G-C',
+                    'T-C-G', 'C-G-T', 'G-C-T', 'G-T-C']:
+        return 'OL'
+    elif position in ['RDT', 'LDT', 'NT', 'DT', 'NT-DT', 'DT-NT', 'DT-NT-DE', 'DE-DT-NT', 'DT-DE-NT', 'NT-DE-DT',
+                      'DE-NT-DT', 'DE-NT-DT-DE', 'NT-DT-DE', 'DL']:
+        return 'IDL'
+    elif position in ['RDE', 'LDE', 'OLB-DE', 'LB-DE', 'DE-LB', 'DE-OLB', 'EDGE', 'E']:
+        return 'DE'
+    elif position in ['OLB', 'OOLB', 'MLB', 'ROLB', 'LOLB', 'LLB', 'RLB', 'LILB', 'RILB', 'ILB']:
+        return 'LB'
+    elif position in ['RCB', 'LCB']:
+        return 'CB'
+    elif position in ['SS', 'FS']:
+        return 'S'
+    else:
+        return position
 
 
 def lbs_to_kgs(weight):

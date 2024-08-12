@@ -33,6 +33,7 @@ def add_players(player_list):
                               first_name=player.first_name,
                               last_name=player.last_name,
                               position=player.position,
+                              position_group=player.position_group,
                               height=player.height,
                               weight=player.weight,
                               start_year=player.start_year,
@@ -51,6 +52,7 @@ def add_players(player_list):
                 SeasonStats.create(pid=player.pid,
                                    year=year,
                                    games_played=val['gp'],
+                                   games_started=val['gs'],
                                    approx_value=val['av'], )
         except Exception as e:
             logger.exception(e)

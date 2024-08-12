@@ -17,7 +17,7 @@ class PlayerInfo(BaseModel):
     first_name = CharField()
     last_name = CharField()
     position = CharField(null=True)
-    postion_group = CharField(null=True)
+    position_group = CharField(null=True)
 
     # Physical
     height = IntegerField()
