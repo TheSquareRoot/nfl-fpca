@@ -4,6 +4,7 @@ from nfl_fpca.db_model import (
     SeasonStats
 )
 from nfl_fpca.config import setup_logging
+from nfl_fpca.player import Player
 
 # Configure module logger from config file
 logger = setup_logging(__name__, 'logs/database.log')
@@ -73,3 +74,17 @@ def get_all_pids():
         logger.info(f"{len(all_pids)} players loaded!")
 
     return all_pids
+
+
+@db.connection_context()
+def load_player(pid):
+    """Requests enrties with pid and creates a player object"""
+    # Load info from the db
+    player_info = PlayerInfo.get(PlayerInfo.pid == pid)
+    season_stats_list = SeasonStats.select().where(SeasonStats.pid == pid).order_by(SeasonStats.year)
+
+    # Create and populate the player object
+    player = Player(player_info.pid)
+    player.set_from_db(player_info, season_stats_list)
+
+    return player

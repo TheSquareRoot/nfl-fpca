@@ -29,6 +29,8 @@ class Player:
     def __repr__(self):
         return f"Player({self.pid}, {self.first_name}, {self.last_name}, {self.position}, {self.height}, {self.weight})"
 
+    # ----- PROPERTIES -------------------------------------------------------------------------------------------------
+
     @property
     def career_length(self):
         return self.last_year - self.start_year + 1
@@ -36,6 +38,8 @@ class Player:
     @property
     def retired(self):
         return self.start_year != 2023
+
+    # ----- SETTER METHODS ---------------------------------------------------------------------------------------------
 
     def set_player_info(self, name, position, position_group, height, weight):
         self.first_name = name.split(' ')[0]
@@ -58,3 +62,30 @@ class Player:
         self.shuttle = shuttle
         self.cone = cone
         self.vertical = vertical
+
+    def set_from_db(self, player_info, season_stats_list):
+        """Sets attributes from database query objects"""
+        # Set attributes from PlayerInfo object
+        self.first_name = player_info.first_name
+        self.last_name = player_info.last_name
+        self.position = player_info.position
+        self.height = player_info.height
+        self.weight = player_info.weight
+
+        self.start_year = player_info.start_year
+        self.start_age = player_info.start_age
+
+        self.dash = player_info.dash
+        self.bench = player_info.bench
+        self.broad = player_info.broad
+        self.shuttle = player_info.shuttle
+        self.cone = player_info.cone
+        self.vertical = player_info.vertical
+
+        # Set stats from SeasonStats objects
+        self.stats = {}
+        for stat in season_stats_list:
+            self.stats[stat.year] = {
+                'gp': stat.games_played,
+                'av': stat.approx_value
+            }
