@@ -1,3 +1,6 @@
+import numpy as np
+
+
 # TODO: Look into dataclasses
 
 
@@ -89,3 +92,22 @@ class Player:
                 'gp': stat.games_played,
                 'av': stat.approx_value
             }
+
+    def get_stats_array(self):
+        av = np.array([year['av'] for year in self.stats.values()])
+        gp = np.array([year['gp'] for year in self.stats.values()])
+        time = np.array([year for year in self.stats.keys()])
+
+        return av, gp, time
+
+    def adjust_for_injuries(self, threshold=3):
+        # TODO: For some positions like QB, it should reall look at games started
+        # Get season stats arrays
+        _, gp, time = self.get_stats_array()
+
+        # A season is filtered out if the number of games played is below the threshold AND there are seasons with more
+        # games played in the following years. This is to avoid filtering out the decline in games played at the end of
+        # players' careers
+        for (i, val) in enumerate(gp[:-1]):
+            if (val <= threshold) and (val <= np.max(gp[i:-1])):
+                del self.stats[time[i]]
