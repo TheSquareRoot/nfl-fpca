@@ -42,6 +42,7 @@ class SeasonStats(BaseModel):
     pid = ForeignKeyField(PlayerInfo)
     year = IntegerField(null=False)
     games_played = IntegerField()
+    games_started = IntegerField()
     approx_value = IntegerField()
 
     class Meta:

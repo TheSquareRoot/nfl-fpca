@@ -159,9 +159,10 @@ def scrape_career_table(table, player):
     for line in lines:
         year = int(line['id'].split('.')[1])
         gp = int(line.find('td', attrs={'data-stat': 'g'}).text or 0)
+        gs = int(line.find('td', attrs={'data-stat': 'gs'}).text or 0)
         av = int(line.find('td', attrs={'data-stat': 'av'}).text or 0)
 
-        stats[year] = {'gp': gp, 'av': av}
+        stats[year] = {'gp': gp, 'gs': gs, 'av': av}
 
     # Get other information
     start_year = int(lines[0]['id'].split('.')[1])
