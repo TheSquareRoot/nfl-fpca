@@ -60,11 +60,21 @@ def add_players(player_list):
 # ----- QUERIES --------------------------------------------------------------------------------------------------------
 
 @db.connection_context()
-def get_all_pids():
+def get_all_pids(positions=None, start_year=1960, career_length=0, retired=1):
     all_pids = set()
     try:
         logger.info('Loading players from database...')
-        for player in PlayerInfo.select():
+        # Build the query
+        query = (PlayerInfo.select()
+                 .where(PlayerInfo.start_year >= start_year)
+                 .where(PlayerInfo.career_length >= career_length)
+                 .where(PlayerInfo.retired == retired))
+
+        if positions:
+            query = query.where(PlayerInfo.position_group.in_(positions))
+
+        # Iterate through the query
+        for player in query:
             logger.debug(f"[{player.pid}] - Loading...")
             all_pids.add(player.pid)
     except Exception as e:
