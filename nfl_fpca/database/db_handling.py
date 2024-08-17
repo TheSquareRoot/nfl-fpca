@@ -1,5 +1,5 @@
 from ..config import setup_logging
-from ..models.db_model import db, PlayerInfo, SeasonStats
+from nfl_fpca.database.db_model import db, PlayerInfo, SeasonStats
 from ..models.player import Player
 
 
