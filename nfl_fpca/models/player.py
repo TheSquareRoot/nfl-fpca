@@ -1,6 +1,3 @@
-import numpy as np
-
-
 # TODO: Look into dataclasses
 
 
@@ -33,6 +30,10 @@ class Player:
         return f"Player({self.pid}, {self.first_name}, {self.last_name}, {self.position}, {self.height}, {self.weight})"
 
     # ----- PROPERTIES -------------------------------------------------------------------------------------------------
+
+    @property
+    def name(self):
+        return f"{self.first_name} {self.last_name}"
 
     @property
     def career_length(self):
@@ -97,8 +98,8 @@ class Player:
         # TODO: Input handling
         stats = dict()
         for arg in args:
-            stats[arg] = np.array([year[arg] for year in self.stats.values()])
-        time = np.array([year for year in self.stats.keys()])
+            stats[arg] = [year[arg] for year in self.stats.values()]
+        time = [year for year in self.stats.keys()]
 
         return stats, time
 
@@ -111,5 +112,5 @@ class Player:
         # games played in the following years. This is to avoid filtering out the decline in games played at the end of
         # players' careers
         for (i, val) in enumerate(stats['gp'][:-1]):
-            if (val <= threshold) and (val <= np.max(stats['gp'][i:-1])):
+            if (val <= threshold) and (val <= max(stats['gp'][i:-1])):
                 del self.stats[time[i]]
