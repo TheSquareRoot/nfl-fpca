@@ -9,6 +9,8 @@ __pycache__/
 # Project specific folders
 /data
 /imgs
+/main.py
+/mess.py
 
 # C extensions
 *.so
