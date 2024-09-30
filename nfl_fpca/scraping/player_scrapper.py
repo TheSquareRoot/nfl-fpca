@@ -66,14 +66,26 @@ def scrape_career_table(soup, player):
         stats = dict()
 
         # Extract the table data lines
-        lines = table.tbody.find_all('tr', attrs={'class': 'full_table'})
+        lines = table.tbody.find_all('tr')
+
+        # Filter out rows that do not have a class attribute
+        lines = [line for line in lines if 'partial_table' not in line.get('class', [])]
 
         # Get approximate value and games played for each year
         for line in lines:
+            # Year and main position played
             year = int(line['id'].split('.')[1])
             pos = line.find('td', attrs={'data-stat': 'pos'}).text
-            gp = int(line.find('td', attrs={'data-stat': 'g'}).text or 0)
-            gs = int(line.find('td', attrs={'data-stat': 'gs'}).text or 0)
+
+            # Number of games played
+            gp_tag = line.find('td', attrs={'data-stat': 'games'}) or line.find('td', attrs={'data-stat': 'g'})
+            gp = int(gp_tag.text) or 0
+
+            # Number of games started
+            gs_tag = line.find('td', attrs={'data-stat': 'games_started'}) or line.find('td', attrs={'data-stat': 'gs'})
+            gs = int(gs_tag.text) or 0
+
+            # Approximate value
             av = int(line.find('td', attrs={'data-stat': 'av'}).text or 0)
 
             stats[year] = {'pos': get_position_group(pos), 'gp': gp, 'gs': gs, 'av': av}
@@ -164,5 +176,9 @@ def scrape_player_page(page, pid):
         logger.info(f"[{pid}] - Getting position group from history.")
         stats, _ = player.get_stats_array('pos', 'av')
         player.position_group = get_position_group_from_history(stats['pos'], stats['av'])
+
+    # Sets off a warning if the player position could be not be found
+    if player.position_group == 'N/A':
+        logger.warning(f"[{pid}] - Could not find position group.")
 
     return player
