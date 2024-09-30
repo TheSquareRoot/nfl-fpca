@@ -48,6 +48,7 @@ def add_players(player_list):
             for year, val in player.stats.items():
                 SeasonStats.create(pid=player.pid,
                                    year=year,
+                                   position=val['pos'],
                                    games_played=val['gp'],
                                    games_started=val['gs'],
                                    approx_value=val['av'], )

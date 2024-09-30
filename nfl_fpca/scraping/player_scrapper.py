@@ -8,6 +8,7 @@ from ..models.player import Player
 from .utils import (find_table,
                     get_career_table,
                     get_position_group,
+                    get_position_group_from_history,
                     inches_to_cm,
                     lbs_to_kgs
                     )
@@ -36,8 +37,8 @@ def scrape_player_header(soup, player):
             pos_group = get_position_group(pos)
         else:
             logger.debug(f"[{player.pid}] - No position found")
-            pos = 'N/A'
-            pos_group = 'N/A'
+            pos = None
+            pos_group = None
 
         # Physicals
         phys = header.find_all(string=height_re)
@@ -70,11 +71,14 @@ def scrape_career_table(soup, player):
         # Get approximate value and games played for each year
         for line in lines:
             year = int(line['id'].split('.')[1])
+            pos = line.find('td', attrs={'data-stat': 'pos'}).text
             gp = int(line.find('td', attrs={'data-stat': 'g'}).text or 0)
             gs = int(line.find('td', attrs={'data-stat': 'gs'}).text or 0)
             av = int(line.find('td', attrs={'data-stat': 'av'}).text or 0)
 
-            stats[year] = {'gp': gp, 'gs': gs, 'av': av}
+            stats[year] = {'pos': get_position_group(pos), 'gp': gp, 'gs': gs, 'av': av}
+
+            logger.debug(f"[{player.pid}] - Scraped {year} stats.")
 
         # Get other information
         start_year = int(lines[0]['id'].split('.')[1])
@@ -99,6 +103,7 @@ def scrape_combine_table(soup, player):
         combine_data = table.tbody.tr
 
         # Get combine results
+        draft_pos = combine_data.find('td', attrs={'data-stat': 'pos'}).text
         dash = float(combine_data.find('td', attrs={'data-stat': 'forty_yd'}).text or 0.0)
         bench = int(combine_data.find('td', attrs={'data-stat': 'bench_reps'}).text or 0)
         broad = int(combine_data.find('td', attrs={'data-stat': 'broad_jump'}).text or 0)
@@ -109,14 +114,12 @@ def scrape_combine_table(soup, player):
         # If player infos are missing, get them from the combine table
         height = int(combine_data.find('td', attrs={'data-stat': 'height'}).text or 0)
         weight = int(combine_data.find('td', attrs={'data-stat': 'weight'}).text or 0)
-        pos = combine_data.find('td', attrs={'data-stat': 'pos'}).text
 
+        # If player height and weight were not found in the header
         if player.height == 0: player.height = inches_to_cm(height)
         if player.weight == 0: player.weight = lbs_to_kgs(weight)
-        if player.position == 'N/A': player.position = pos
-        if player.position_group == 'N/A': player.position_group = get_position_group(pos)
 
-        player.set_combine_results(dash, bench, broad, shuttle, cone, vertical)
+        player.set_combine_data(draft_pos, dash, bench, broad, shuttle, cone, vertical)
 
     else:
         logger.debug(f"[{player.pid}] - No combine table")
@@ -134,7 +137,7 @@ def fetch_and_scrape_player_page(pid):
         logger.error(f"[{pid}] - Requesting player page failed with code {e.response.status_code}")
         raise
     else:
-        logger.debug(f"[{pid}] - Requested {url} successfully.")
+        logger.info(f"[{pid}] - Requested {url} successfully.")
         logger.info(f"[{pid}] - Scraping...")
         return scrape_player_page(response.text, pid)
 
@@ -150,5 +153,16 @@ def scrape_player_page(page, pid):
     scrape_player_header(soup, player)
     scrape_career_table(soup, player)
     scrape_combine_table(soup, player)
+
+    # Sort out player position
+    if (player.position is None) and player.draft_pos:
+        logger.info(f"[{pid}] - Getting position ({player.draft_pos}) from combine table.")
+        player.position = player.draft_pos
+        player.position_group = get_position_group(player.position)
+
+    if player.position_group in ('N/A', 'DB'):
+        logger.info(f"[{pid}] - Getting position group from history.")
+        stats, _ = player.get_stats_array('pos', 'av')
+        player.position_group = get_position_group_from_history(stats['pos'], stats['av'])
 
     return player

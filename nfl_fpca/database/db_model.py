@@ -2,7 +2,6 @@ import os
 from peewee import *
 
 
-# DB_PATH = "/home/marvin/Documents/code/nfl-fpca/data/player.db"
 DB_PATH = os.getcwd() + "/data/player.db"
 db = SqliteDatabase(DB_PATH)
 
@@ -41,6 +40,7 @@ class PlayerInfo(BaseModel):
 class SeasonStats(BaseModel):
     pid = ForeignKeyField(PlayerInfo)
     year = IntegerField(null=False)
+    position = CharField()
     games_played = IntegerField()
     games_started = IntegerField()
     approx_value = IntegerField()

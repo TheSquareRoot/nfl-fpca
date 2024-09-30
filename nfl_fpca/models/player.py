@@ -19,6 +19,7 @@ class Player:
         self.stats = dict()
 
         # Combine results
+        self.draft_pos = None
         self.dash = 0.0
         self.bench = 0
         self.broad = 0
@@ -59,7 +60,8 @@ class Player:
         self.last_year = last_year
         self.stats = stats
 
-    def set_combine_results(self, dash, bench, broad, shuttle, cone, vertical):
+    def set_combine_data(self, draft_pos, dash, bench, broad, shuttle, cone, vertical):
+        self.draft_pos = draft_pos
         self.dash = dash
         self.bench = bench
         self.broad = broad
@@ -90,7 +92,9 @@ class Player:
         self.stats = {}
         for stat in season_stats_list:
             self.stats[stat.year] = {
+                'pos': stat.position,
                 'gp': stat.games_played,
+                'gs': stat.games_started,
                 'av': stat.approx_value
             }
 

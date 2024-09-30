@@ -1,3 +1,6 @@
+from collections import defaultdict
+import json
+
 from bs4 import BeautifulSoup, Comment
 
 
@@ -28,22 +31,27 @@ def get_career_table(soup):
 
 def get_position_group(position):
     """ Groups all positions into groups for simpler data handling. """
-    if position in ['T', 'G', 'RT', 'RG', 'LT', 'LG', 'C', 'G-C', 'C-G', 'G-T', 'T-G', 'C-T', 'T-C', 'C-T-G', 'T-G-C',
-                    'T-C-G', 'C-G-T', 'G-C-T', 'G-T-C']:
-        return 'OL'
-    elif position in ['RDT', 'LDT', 'NT', 'DT', 'NT-DT', 'DT-NT', 'DT-NT-DE', 'DE-DT-NT', 'DT-DE-NT', 'NT-DE-DT',
-                      'DE-NT-DT', 'DE-NT-DT-DE', 'NT-DT-DE', 'DL']:
-        return 'IDL'
-    elif position in ['RDE', 'LDE', 'OLB-DE', 'LB-DE', 'DE-LB', 'DE-OLB', 'EDGE', 'E']:
-        return 'DE'
-    elif position in ['OLB', 'OOLB', 'MLB', 'ROLB', 'LOLB', 'LLB', 'RLB', 'LILB', 'RILB', 'ILB']:
-        return 'LB'
-    elif position in ['RCB', 'LCB']:
-        return 'CB'
-    elif position in ['SS', 'FS']:
-        return 'S'
-    else:
-        return position
+    with open("position.json", "r") as file:
+        pos_dict = json.load(file)
+
+        if position in pos_dict:
+            return pos_dict[position]
+        else:
+            return 'N/A'
+
+
+def get_position_group_from_history(pos_list, av_list):
+    # Dictionary to accumulate AV values for each position
+    av_by_position = defaultdict(int)
+
+    # Accumulate AV values for each position
+    for pos, av in zip(pos_list, av_list):
+        av_by_position[pos] += av
+
+    # Find the position with the maximum cumulative AV
+    max_position = max(av_by_position, key=av_by_position.get)
+
+    return max_position
 
 
 def lbs_to_kgs(weight):

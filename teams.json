@@ -1,0 +1,194 @@
+{
+  "0": {
+    "name": "Cardinals",
+    "abbrev": "crd",
+    "firstYear": 1920,
+    "lastYear": 2050
+  },
+  "1": {
+    "name": "Falcons",
+    "abbrev": "atl",
+    "firstYear": 1966,
+    "lastYear": 2050
+  },
+  "2": {
+    "name": "Ravens",
+    "abbrev": "rav",
+    "firstYear": 1996,
+    "lastYear": 2050
+  },
+  "3": {
+    "name": "Bills",
+    "abbrev": "buf",
+    "firstYear": 1960,
+    "lastYear": 2050
+  },
+  "4": {
+    "name": "Panthers",
+    "abbrev": "car",
+    "firstYear": 1995,
+    "lastYear": 2050
+  },
+  "5": {
+    "name": "Bears",
+    "abbrev": "chi",
+    "firstYear": 1920,
+    "lastYear": 2050
+  },
+  "6": {
+    "name": "Browns",
+    "abbrev": "cle",
+    "firstYear": 1946,
+    "lastYear": 2050
+  },
+  "7": {
+    "name": "Cowboys",
+    "abbrev": "dal",
+    "firstYear": 1960,
+    "lastYear": 2050
+  },
+  "8": {
+    "name": "Broncos",
+    "abbrev": "den",
+    "firstYear": 1960,
+    "lastYear": 2050
+  },
+  "9": {
+    "name": "Lions",
+    "abbrev": "det",
+    "firstYear": 1930,
+    "lastYear": 2050
+  },
+  "10": {
+    "name": "Packers",
+    "abbrev": "gnb",
+    "firstYear": 1921,
+    "lastYear": 2050
+  },
+  "11": {
+    "name": "Texans",
+    "abbrev": "htx",
+    "firstYear": 2002,
+    "lastYear": 2050
+  },
+  "12": {
+    "name": "Colts",
+    "abbrev": "clt",
+    "firstYear": 1953,
+    "lastYear": 2050
+  },
+  "13": {
+    "name": "Jaguars",
+    "abbrev": "jax",
+    "firstYear": 1995,
+    "lastYear": 2050
+  },
+  "14": {
+    "name": "Chiefs",
+    "abbrev": "kan",
+    "firstYear": 1960,
+    "lastYear": 2050
+  },
+  "15": {
+    "name": "Raiders",
+    "abbrev": "rai",
+    "firstYear": 1960,
+    "lastYear": 2050
+  },
+  "16": {
+    "name": "Chargers",
+    "abbrev": "sdg",
+    "firstYear": 1960,
+    "lastYear": 2050
+  },
+  "17": {
+    "name": "Rams",
+    "abbrev": "ram",
+    "firstYear": 1937,
+    "lastYear": 2050
+  },
+  "18": {
+    "name": "Dolphins",
+    "abbrev": "mia",
+    "firstYear": 1966,
+    "lastYear": 2050
+  },
+  "19": {
+    "name": "Vikings",
+    "abbrev": "min",
+    "firstYear": 1961,
+    "lastYear": 2050
+  },
+  "20": {
+    "name": "Patriots",
+    "abbrev": "nwe",
+    "firstYear": 1960,
+    "lastYear": 2050
+  },
+  "21": {
+    "name": "Saints",
+    "abbrev": "nor",
+    "firstYear": 1967,
+    "lastYear": 2050
+  },
+  "22": {
+    "name": "Giants",
+    "abbrev": "nyg",
+    "firstYear": 1925,
+    "lastYear": 2050
+  },
+  "23": {
+    "name": "Jets",
+    "abbrev": "nyj",
+    "firstYear": 1960,
+    "lastYear": 2050
+  },
+  "24": {
+    "name": "Eagles",
+    "abbrev": "phi",
+    "firstYear": 1933,
+    "lastYear": 2050
+  },
+  "25": {
+    "name": "Steelers",
+    "abbrev": "pit",
+    "firstYear": 1933,
+    "lastYear": 2050
+  },
+  "26": {
+    "name": "49ers",
+    "abbrev": "sfo",
+    "firstYear": 1946,
+    "lastYear": 2050
+  },
+  "27": {
+    "name": "Seahawks",
+    "abbrev": "sea",
+    "firstYear": 1976,
+    "lastYear": 2050
+  },
+  "28": {
+    "name": "Buccaneers",
+    "abbrev": "tam",
+    "firstYear": 1976,
+    "lastYear": 2050
+  },
+  "29": {
+    "name": "Titans",
+    "abbrev": "oti",
+    "firstYear": 1960,
+    "lastYear": 2050
+  },
+  "30": {
+    "name": "Commanders",
+    "abbrev": "was",
+    "firstYear": 1932,
+    "lastYear": 2050
+  },
+  "31": {
+    "name": "Bengals",
+    "abbrev": "cin",
+    "firstYear": 1968,
+    "lastYear": 2050
+  }
+}
