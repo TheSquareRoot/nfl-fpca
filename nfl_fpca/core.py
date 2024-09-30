@@ -40,7 +40,8 @@ def run_scraping_pipeline(start, end, team, wipe=False):
                 except requests.exceptions.ConnectionError as e:
                     print(e)
                 else:
-                    player_list.append(player)
+                    if player.start_year >= 1960:
+                        player_list.append(player)
 
                 progress.advance(player_task)
 
